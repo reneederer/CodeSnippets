@@ -14,7 +14,7 @@
  
 (defn get-source
      "Queries the database and returns the sourcecode"
-     []
+     [& prog-langs]
      (sql/query db  ["select sourcecode from codesnippet"]))
  
 
