@@ -5,28 +5,26 @@
   (:import (javax.swing JFrame JButton JComboBox JPanel JTextArea JScrollPane JTree JOptionPane))
   (:import (javax.swing.tree DefaultMutableTreeNode))
   (:import (javax.swing.event TreeSelectionListener))
-  (:import (java.awt BorderLayout))
+  (:import (java.awt BorderLayout Dimension))
   (:import (java.awt.event ActionListener)))
 
 
 
 (defn show-frame []
-  (let  [cmbProgLang (JComboBox.)
-         txaSourceCode (JTextArea.)
+  (let  [txaSourceCode (JTextArea.)
          pnlSearch (JPanel.)
          scrSourceCode (JScrollPane. txaSourceCode)
          pnlSourceCode (JPanel. (BorderLayout.))
-         pnlResults (JPanel.)
+         pnlResults (JPanel. (BorderLayout.))
          root (DefaultMutableTreeNode.)
          pnlMain (JPanel. (BorderLayout.))]
 
+    (.setPreferredSize pnlResults (Dimension. 400 100))
     (.add pnlSourceCode scrSourceCode)
-    (.add pnlSearch cmbProgLang)
     (.add pnlMain pnlSourceCode BorderLayout/CENTER)
     (.add pnlMain pnlSearch BorderLayout/PAGE_START)
     (.add pnlMain pnlResults BorderLayout/LINE_END)
 
-    (doseq [v (db/get-prog-langs)] (.addItem cmbProgLang  (v :name)))
     (doseq [v (db/get-prog-langs)] 
       (let [currentNode (DefaultMutableTreeNode. (v :name))]
         (.add root currentNode)  
@@ -43,10 +41,7 @@
       (proxy [TreeSelectionListener] []
         (valueChanged [e] 
           (let [currentNode (.getLastSelectedPathComponent (.getSource e))]
-            ;(JOptionPane/showMessageDialog nil (str (first (db/get-source (str (.getParent currentNode)) (str currentNode)))) "asd" JOptionPane/INFORMATION_MESSAGE)
-            (.setText txaSourceCode (:sourcecode (first (db/get-source (str (.getParent currentNode)) (str currentNode)))))
-            )
-          ))))
+            (.setText txaSourceCode (:sourcecode (first (db/get-source (.getParent currentNode) currentNode)))))))))
 
     (doto (JFrame.)
       (.add pnlMain)
