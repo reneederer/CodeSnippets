@@ -11,11 +11,28 @@
        "Queries the database and gets the programming languages"
        []
        (sql/query db  ["select name from programming_language"]))
+
+(defn get-snippet-names
+  "Gets the snippet titles for the specified programming language"
+  [lang]
+  (sql/query db [(str "select title from codesnippet
+                 join programming_language_version
+                   on codesnippet.programming_language_version_id = programming_language_version.id
+                 join programming_language
+                   on programming_language_version.programming_language_id = programming_language.id
+                 where programming_language.name = '" lang "'")]))
  
 (defn get-source
      "Queries the database and returns the sourcecode"
-     [& prog-langs]
-     (sql/query db  ["select sourcecode from codesnippet"]))
+     [lang title]
+  (sql/query db  [(str "select sourcecode from codesnippet
+                   join programming_language_version
+                   on codesnippet.programming_language_version_id = programming_language_version.id
+                   join programming_language
+                   on programming_language_version.programming_language_id = programming_language.id
+                   where programming_language.name = '" lang "'
+                                                             and codesnippet.title = '" title "'")]))
  
 
+              
 
