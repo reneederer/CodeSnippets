@@ -6,5 +6,6 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/java.jdbc "0.4.2"]
                  [mysql/mysql-connector-java "5.1.6"]
-                 [jonase/eastwood "0.2.1"]]
+                 [jonase/eastwood "0.2.1"]
+                 [me.raynes/conch "0.8.0"]]
    :main codesnippets.core)
