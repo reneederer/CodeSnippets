@@ -12,4 +12,9 @@ pom.xml.asc
 *.swp
 *.swo
 src/codesnippets/test
-src/codesnippets/test.cob
+src/codesnippets/test*
+src/codesnippets/srcFile*
+src/codesnippets/destFile*
+srcFile*
+destFile*
+

@@ -1,5 +1,4 @@
 (ns codesnippets.gui
-  (:require [clojure.java [jdbc :as sql]])
   (:require [clojure.string :as str])
   (:require [codesnippets.execute :as execMe])
   (:require [codesnippets.db :as db])
@@ -29,19 +28,6 @@
          pnlMain (JPanel. (BorderLayout.))]
 
     (.setLayout pnlExecution (BoxLayout. pnlExecution BoxLayout/Y_AXIS))
-    (.addKeyListener txaSourceCode
-                     (proxy  [KeyListener] []
-                       (keyPressed  [e]
-                         (when (= (.getKeyCode e) KeyEvent/VK_F5)
-                           (.setText txaCompileErrors "Working...")
-                           (.setText txaOutput "Working...")
-                           (let [execResult (execMe/compileAndRun (.getText txaSourceCode))]
-                             (.setText txaCompileErrors (:errors execResult))
-                             (if (str/blank? (:errors execResult))
-                                          (.setText txaOutput (:output execResult))
-                                          (.setText txaOutput "")))))
-                       (keyReleased  [e])
-                       (keyTyped  [e])))
     (.add pnlOutput scrOutput)
     (.add pnlCompileErrors scrCompileErrors)
     (.add pnlCenter pnlSourceCode BorderLayout/CENTER)
@@ -62,21 +48,62 @@
         (.add root currentNode)  
         (doseq [w (db/get-snippet-names (v :name))]
           (do
-          (.add currentNode (DefaultMutableTreeNode. (w :title)))))))
+            (.add currentNode (DefaultMutableTreeNode. (w :title)))))))
 
 
 
 
     (let [tree (JTree. root)]
-    (.add pnlResults tree)
-    (.addTreeSelectionListener tree
-      (proxy [TreeSelectionListener] []
-        (valueChanged [e] 
-          (let [currentNode (.getLastSelectedPathComponent (.getSource e))]
-            (.setText txaSourceCode (:sourcecode (first (db/get-source (.getParent currentNode) currentNode)))))))))
+      (.addKeyListener txaSourceCode
+                       (proxy  [KeyListener] []
+                         (keyPressed  [e]
+                           (when (= (.getKeyCode e) KeyEvent/VK_F5)
+                             (.setText txaCompileErrors "Working...")
+                             (.setText txaOutput "Working...")
+                             (let [execResult (execMe/compileAndRun (.getText txaSourceCode) (.getParent (.getLastSelectedPathComponent tree)))]
+                               (JOptionPane/showMessageDialog nil (:errors execResult) (:output execResult) JOptionPane/INFORMATION_MESSAGE)
+                               (.setText txaCompileErrors (:errors execResult))
+                               (if (str/blank? (:errors execResult))
+                                 (.setText txaOutput (:output execResult))
+                                 (.setText txaOutput "")))
+
+                             ))
+                         (keyReleased  [e])
+                         (keyTyped  [e])))
+      (.add pnlResults tree)
+      (.addTreeSelectionListener tree
+                                 (proxy [TreeSelectionListener] []
+                                   (valueChanged [e] 
+                                     (let [currentNode (.getLastSelectedPathComponent (.getSource e))]
+                                       (.setText txaSourceCode (:sourcecode (first (db/get-source (.getParent currentNode) currentNode)))))))))
 
     (doto (JFrame. "CodeSnippets")
       (.add pnlMain) (.setDefaultCloseOperation JFrame/DISPOSE_ON_CLOSE) (.setExtendedState JFrame/MAXIMIZED_BOTH) (.setSize 400, 400) (.setVisible true))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
